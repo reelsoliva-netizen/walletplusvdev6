@@ -1,0 +1,26 @@
+{
+  "packageId": "com.walletplus.app",
+  "host": "walletpluss.netlify.app", 
+  "name": "Wallet+ - Expense & Budget Tracker",
+  "launcherName": "Wallet+",
+  "display": "standalone",
+  "themeColor": "#FF9500",
+  "backgroundColor": "#0F0F0F",
+  "startUrl": "/",
+  "appUrl": "https://walletpluss.netlify.app/",
+  "manifestUrl": "https://walletpluss.netlify.app/manifest.json",
+  "navigationColor": "#FF9500",
+  "navigationColorDark": "#0F0F0F",
+  "enableNotifications": false,
+  "generator": "bubblewrap",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "signingKey": {
+    "path": "android/keys/walletplus-release.jks",
+    "alias": "walletplus",
+    "fullName": "WalletPlus",
+    "organizationalUnit": "Engineering",
+    "organization": "WalletPlus",
+    "countryCode": "US"
+  }
+}
