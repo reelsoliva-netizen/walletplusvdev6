@@ -1,18 +1,21 @@
-const CACHE_NAME = 'walletplus-cache-v3';
+const CACHE_NAME = 'walletplus-cache-v5';
 const URLS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  // Add common assets that should be cached
-  '/assets/',
-  '/src/',
-  // Fallback offline page
-  '/offline.html'
+  '/icons/icon-512.png',
+  '/icon.svg',
+  '/index.css',
+  '/privacy-policy.html'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(URLS_TO_CACHE).catch(err => {
+        console.warn('Some resources failed to cache:', err);
+      });
+    })
   );
   self.skipWaiting();
 });

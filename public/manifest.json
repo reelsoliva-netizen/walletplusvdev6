@@ -1,7 +1,7 @@
 {
   "name": "Wallet+ - Expense & Budget Tracker",
   "short_name": "Wallet+",
-  "description": "A comprehensive expense and budget tracking application",
+  "description": "Track expenses, manage budgets, and achieve your financial goals. Works 100% offline with local-only data storage.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0F0F0F",
@@ -10,12 +10,37 @@
   "scope": "/",
   "icons": [
     {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "/icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ],
   "categories": ["finance", "productivity", "utilities"],
   "lang": "en",
-  "dir": "ltr"
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Add Transaction",
+      "short_name": "Add",
+      "description": "Quickly add a new transaction",
+      "url": "/?action=add",
+      "icons": [{ "src": "/icons/icon-512.png", "sizes": "192x192" }]
+    }
+  ],
+  "permissions": ["storage"],
+  "offline_enabled": true
 }

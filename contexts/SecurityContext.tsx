@@ -16,7 +16,7 @@ interface SecurityContextType {
   setCredential: (value: string, type: AuthType) => Promise<void>;
   verifyCredential: (value: string) => Promise<boolean>;
 
-  // Encryption (disabled)
+  // Encryption (disabled - data stored in localStorage)
   isEncryptionEnabled: boolean;
   encrypt: (text: string) => Promise<string>;
   decrypt: (encryptedText: string) => Promise<string | null>;
@@ -38,35 +38,29 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     window.localStorage.setItem('isBalanceHidden', JSON.stringify(isHidden));
-    // Ensure any legacy security data is cleared to avoid lock state
     window.localStorage.removeItem('walletplus-credential');
   }, [isHidden]);
 
   const toggleHidden = () => setIsHidden(prev => !prev);
 
   const setCredential = async (_value: string, _type: AuthType) => {
-    // No-op: app lock removed
     return;
   };
 
   const setAuthType = (_type: AuthType) => {
-    // No-op: app lock removed
     return;
   };
 
   const verifyCredential = async (_value: string): Promise<boolean> => {
-    // Always succeed since app lock is disabled
     return true;
   };
 
   const encrypt = async (text: string): Promise<string> => {
-    // Encryption disabled; return text as-is
-    return Promise.resolve(text);
+    return text;
   };
 
   const decrypt = async (encryptedText: string): Promise<string | null> => {
-    // Encryption disabled; return the provided text
-    return Promise.resolve(encryptedText);
+    return encryptedText;
   };
 
   const value = {
