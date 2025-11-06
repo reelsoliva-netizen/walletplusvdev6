@@ -13,11 +13,14 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <SettingsProvider>
-      <PrivacyProvider>
-        <App />
-      </PrivacyProvider>
-    </SettingsProvider>
+    {/* Mount SecurityProvider above SettingsProvider so Hide Balances works globally */}
+    <SecurityProvider>
+      <SettingsProvider>
+        <PrivacyProvider>
+          <App />
+        </PrivacyProvider>
+      </SettingsProvider>
+    </SecurityProvider>
   </React.StrictMode>
 );
 
