@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wallet+ - Expense & Budget Tracker</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Take control of your finances with Wallet+, an intuitive app for tracking expenses, managing budgets, and achieving your financial goals." />
+    <meta name="keywords" content="finance, budget, tracker, expense, income, savings, money management, personal finance, Wallet+" />
+    <meta name="author" content="Wallet+" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Wallet+ - Expense & Budget Tracker" />
+    <meta property="og:description" content="Take control of your finances with Wallet+, an intuitive app for tracking expenses, managing budgets, and achieving your financial goals." />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:title" content="Wallet+ - Expense & Budget Tracker" />
+    <meta property="twitter:description" content="Take control of your finances with Wallet+, an intuitive app for tracking expenses, managing budgets, and achieving your financial goals." />
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#FF9500" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Wallet+" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --color-primary: #FF9500;
+        --color-dark-900: #0F0F0F;
+        --color-dark-800: #1A1A1A;
+        --color-dark-700: #2A2A2A;
+        --color-light-900: #F5F5F5;
+        --color-light-800: #A0A0A0;
+      }
+      /* Adjust font size on smaller screens to "zoom out" the UI */
+      @media (max-width: 480px) {
+        html {
+          font-size: 14px;
+        }
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'primary': 'var(--color-primary)',
+              'dark': {
+                '900': 'var(--color-dark-900)',
+                '800': 'var(--color-dark-800)',
+                '700': 'var(--color-dark-700)',
+              },
+              'light': {
+                '900': 'var(--color-light-900)',
+                '800': 'var(--color-light-800)'
+              }
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+              'scale-up': 'scaleUp 0.5s ease-out forwards',
+              'slide-down': 'slideDown 0.5s ease-out forwards',
+              'bounce': 'bounce 1s infinite',
+              'spin': 'spin 1s linear infinite',
+            },
+            keyframes: {
+              fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+              scaleUp: { '0%': { transform: 'scale(0.8)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } },
+              slideDown: { '0%': { transform: 'translateY(-20px)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
+              bounce: {
+                '0%, 100%': { transform: 'translateY(-25%)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' },
+                '50%': { transform: 'translateY(0)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' },
+              },
+              spin: {
+                'from': { transform: 'rotate(0deg)' },
+                'to': { transform: 'rotate(360deg)' },
+              },
+            }
+          }
+        }
+      }
+    </script>
+    
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-dark-900">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

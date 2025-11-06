@@ -1,0 +1,7 @@
+{
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "name": "Wallet+ - Expense & Budget Tracker",
+  "description": ""
+}

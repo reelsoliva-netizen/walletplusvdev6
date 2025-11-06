@@ -1,0 +1,21 @@
+{
+  "name": "Wallet+ - Expense & Budget Tracker",
+  "short_name": "Wallet+",
+  "description": "A comprehensive expense and budget tracking application",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F0F0F",
+  "theme_color": "#FF9500",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["finance", "productivity", "utilities"],
+  "lang": "en",
+  "dir": "ltr"
+}
