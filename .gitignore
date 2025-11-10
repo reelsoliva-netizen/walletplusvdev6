@@ -12,6 +12,16 @@ dist
 dist-ssr
 *.local
 
+# Android/Gradle build outputs and caches
+app/build/
+build/
+.gradle/
+
+# Keystores and signing info (keep out of VCS)
+android/keys/*.jks
+local.properties
+SIGNING_INFO.txt
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

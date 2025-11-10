@@ -44,19 +44,26 @@ def twaManifest = [
     splashScreenFadeOutDuration: 200,
     generatorApp: 'bubblewrap-cli', // Application that generated the Android Project
     // The fallback strategy for when Trusted Web Activity is not available. Possible values are
-    // 'customtabs' and 'webview'.
-    fallbackType: 'customtabs',
+    // 'customtabs' and 'webview'. Use 'webview' to avoid showing the Chrome UI
+    // (address bar or infobar) if verification temporarily fails.
+    fallbackType: 'webview',
     enableSiteSettingsShortcut: 'true',
     orientation: 'default',
 ]
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion 36
     namespace "com.walletplus.app"
+    // Load signing properties from local.properties (not committed)
+    def keystoreProps = new Properties()
+    def lpFile = rootProject.file('local.properties')
+    if (lpFile.exists()) {
+        keystoreProps.load(new FileInputStream(lpFile))
+    }
     defaultConfig {
         applicationId "com.walletplus.app"
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 36
         versionCode 2
         versionName "1.1"
 
@@ -144,10 +151,15 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('android/keys/walletplus-release.jks')
-            storePassword 'walletplus'
-            keyAlias 'walletplus'
-            keyPassword 'walletplus'
+            def defaultStoreFile = rootProject.file('android/keys/walletplus-release.jks')
+            def storeFilePathProp = keystoreProps.getProperty('STORE_FILE')
+            def storePass = keystoreProps.getProperty('STORE_PASSWORD') ?: 'walletplus'
+            def keyAliasName = keystoreProps.getProperty('KEY_ALIAS') ?: 'walletplus'
+            def keyPass = keystoreProps.getProperty('KEY_PASSWORD') ?: storePass
+            storeFile storeFilePathProp ? rootProject.file(storeFilePathProp) : defaultStoreFile
+            storePassword storePass
+            keyAlias keyAliasName
+            keyPassword keyPass
         }
     }
     buildTypes {

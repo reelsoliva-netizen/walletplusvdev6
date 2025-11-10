@@ -15,7 +15,7 @@
   "startUrl": "/",
   "iconUrl": "https://walletpluss.netlify.app/icons/icon-512.png",
   "signingKey": {
-    "path": "android/keys/walletplus-release.jks",
+    "path": "android/keys/walletplus-release-new.jks",
     "alias": "walletplus",
     "fullName": "WalletPlus",
     "organizationalUnit": "Engineering",
@@ -26,7 +26,7 @@
   "appVersionCode": 3,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
-  "fallbackType": "customtabs",
+  "fallbackType": "webview",
   "features": {},
   "alphaDependencies": {
     "enabled": false

@@ -159,6 +159,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <div className="flex items-center gap-3"><p>Hide Balances</p></div>
           <button onClick={toggleHidden} className={`w-14 h-8 rounded-full p-1 transition-colors ${isHidden ? 'bg-primary' : 'bg-dark-800'}`}><div className={`w-6 h-6 rounded-full bg-white transform transition-transform ${isHidden ? 'translate-x-6' : 'translate-x-0'}`} /></button>
         </div>
+        
       </div>
       
        <div className="space-y-4">
