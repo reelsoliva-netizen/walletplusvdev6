@@ -143,31 +143,42 @@ const App: React.FC = () => {
     void confirmReset();
   }, []);
   
-  // Effect to load data from IndexedDB (fallback to localStorage) on startup
+  // Effect to load data with robust migration (prefer plaintext; decrypt if needed) on startup
   useEffect(() => {
     const loadData = async () => {
+      // Prefer localStorage plaintext copy first for resilience
       let rawData: string | null = null;
-      try {
-        rawData = await loadAppData();
-      } catch {}
+      try { rawData = localStorage.getItem('appData'); } catch {}
+      // If localStorage missing, check IndexedDB
       if (!rawData) {
-        try { rawData = localStorage.getItem('appData'); } catch {}
+        try { rawData = await loadAppData(); } catch {}
       }
       let appData: Partial<BackupData> = {};
 
       if (rawData) {
+        // Try parse plaintext directly; if not JSON, try decrypt then parse
+        const isLikelyJson = (s: string) => {
+          const t = s.trim();
+          return t.startsWith('{') || t.startsWith('[');
+        };
         try {
-          // Attempt decryption first if encryption is enabled
-          const maybeDecrypted = await decrypt(rawData);
-          const jsonText = maybeDecrypted ?? rawData;
-          appData = JSON.parse(jsonText);
+          const text = isLikelyJson(rawData) ? rawData : (await decrypt(rawData)) ?? rawData;
+          appData = JSON.parse(text);
+          // If we successfully parsed from decrypted text, persist plaintext for future
+          if (!isLikelyJson(rawData)) {
+            try {
+              const plain = JSON.stringify(appData);
+              // Migrate: always keep a plaintext primary copy
+              localStorage.setItem('appData', plain);
+              await saveAppData(plain);
+            } catch {}
+          }
         } catch (e) {
-          console.error("Failed to load or parse data. Data might be corrupt.", e);
-          alert("Error: Could not load your data. It might be corrupted. Resetting to a clean state.");
-          handleResetData(true);
-          return; // Stop execution
+          console.warn('Data load failed, falling back to clean state.', e);
+          appData = undefined as any; // handled below
         }
-      } else {
+      }
+      if (!appData || typeof appData !== 'object') {
         // First launch: initialize with empty state
         appData = {
             transactions: [],
@@ -213,7 +224,7 @@ const App: React.FC = () => {
     }
   }, [currency, onboardingStep]);
 
-  // Effect to save data to IndexedDB and localStorage whenever it changes
+  // Effect to save data to IndexedDB and localStorage whenever it changes (plaintext primary, encrypted backup)
   useEffect(() => {
     const saveData = async () => {
         if (!isDataLoaded || isSaving) return;
@@ -227,11 +238,14 @@ const App: React.FC = () => {
         const jsonString = JSON.stringify(appData);
         
         try {
-            // Optionally encrypt saved data when encryption is enabled and a session secret is set
-            const secured = await encrypt(jsonString);
-            // Save to IndexedDB (primary) and keep localStorage as secondary backup
-            await saveAppData(secured);
-            localStorage.setItem('appData', secured);
+            // Always persist plaintext as the primary copy
+            await saveAppData(jsonString);
+            localStorage.setItem('appData', jsonString);
+            // Optionally store encrypted backup when enabled
+            const encrypted = await encrypt(jsonString);
+            if (encrypted !== jsonString) {
+              try { localStorage.setItem('appDataEnc', encrypted); } catch {}
+            }
             // Mark that data has been persisted at least once
             localStorage.setItem('hasLaunchedBefore', 'true');
         } catch (e) {
