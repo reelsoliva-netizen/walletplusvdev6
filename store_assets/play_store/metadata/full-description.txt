@@ -1,0 +1,23 @@
+Wallet+ is a powerful, privacy-first finance app that helps you track expenses, manage budgets, and build wealth — all without an internet connection.
+
+Key features:
+- Offline-first: Works 100% without internet. Your data stays on-device.
+- Transactions: Add, edit, and search your expenses and income.
+- Budgets & Categories: Plan and monitor spending by category.
+- Goals: Save towards goals and track progress.
+- Accounts & Net Worth: Monitor balances and net worth over time.
+- Bills & Subscriptions: Stay on top of upcoming payments.
+- Analysis: Visual insights with charts to understand your finances.
+- Backup & Restore: Export/import data to keep your records safe.
+- Security: Local-only storage; use device lock or biometrics for privacy.
+
+Why Wallet+?
+- No sign-up, no tracking, no servers.
+- Fast and reliable on any device.
+- Simple, modern UI with dark mode.
+
+Support & Privacy
+Privacy policy: https://walletpluss.netlify.app/privacy-policy.html
+Contact: Use the in-app feedback option.
+
+Note: Wallet+ stores all data locally on your device.

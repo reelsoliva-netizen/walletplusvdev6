@@ -22,8 +22,8 @@
     "organization": "WalletPlus",
     "countryCode": "US"
   },
-  "appVersionName": "1.1",
-  "appVersionCode": 2,
+  "appVersionName": "1.2",
+  "appVersionCode": 3,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "fallbackType": "customtabs",
@@ -31,11 +31,11 @@
   "alphaDependencies": {
     "enabled": false
   },
-  "enableSiteSettingsShortcut": true,
+  "enableSiteSettingsShortcut": false,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
   "minSdkVersion": 21,
-  "orientation": "default",
+  "orientation": "portrait",
   "fingerprints": [],
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
