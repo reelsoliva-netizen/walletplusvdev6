@@ -52,6 +52,15 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
+// Allow clients to trigger SW behaviors (e.g., skipWaiting)
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data) return;
+  if (data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -61,8 +70,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle navigation requests (SPA offline-first App Shell)
-  if (request.mode === 'navigate') {
+  // Handle navigation requests or direct document fetches (SPA offline-first App Shell)
+  if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);

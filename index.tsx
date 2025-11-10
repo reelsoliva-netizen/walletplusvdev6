@@ -24,6 +24,21 @@ root.render(
   </React.StrictMode>
 );
 
+// Suppress browser PWA install prompt on startup
+window.addEventListener('beforeinstallprompt', (e: Event) => {
+  e.preventDefault();
+  // Intentionally do not show any prompt. User can install from browser menu.
+});
+
+// Block standard browser refresh keys to enhance app-like behavior
+window.addEventListener('keydown', (e: KeyboardEvent) => {
+  const isCtrl = e.ctrlKey || e.metaKey; // metaKey for Mac
+  const key = e.key.toLowerCase();
+  if (key === 'f5' || (isCtrl && (key === 'r' || key === 'f5' || key === 'shift'))) {
+    e.preventDefault();
+  }
+});
+
 // Register service worker only in production builds
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {

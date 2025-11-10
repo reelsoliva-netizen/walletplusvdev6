@@ -40,10 +40,11 @@ import { usePrivacy } from './contexts/PrivacyContext';
 import Sidebar from './components/Sidebar';
 import MenuIcon from './components/icons/MenuIcon';
 import SearchIcon from './components/icons/SearchIcon';
+import { loadAppData, saveAppData, clearAppData } from './utils/db';
 
 const App: React.FC = () => {
   const { currency } = useSettings();
-  const { /* isLocked */ } = useSecurity();
+  const { encrypt, decrypt } = useSecurity();
   const { confirm } = usePrivacy();
   
   const [activeItem, setActiveItem] = useState<NavItem>('home');
@@ -91,11 +92,33 @@ const App: React.FC = () => {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isCurrencyModalOpen, setCurrencyModalOpen] = useState(false);
 
+  // Persist and restore active section across refresh; use hash for offline-friendly routing
+  useEffect(() => {
+    const initial = (localStorage.getItem('activeItem') as NavItem) || (window.location.hash.replace('#','') as NavItem) || 'home';
+    setActiveItem(initial);
+    const onHashChange = () => {
+      const item = (window.location.hash.replace('#','') as NavItem) || 'home';
+      setActiveItem(item);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (!activeItem) return;
+    try { localStorage.setItem('activeItem', activeItem); } catch {}
+    if (window.location.hash.replace('#','') !== activeItem) {
+      window.location.hash = activeItem;
+    }
+  }, [activeItem]);
+
   const handleResetData = useCallback((force = false) => {
     const confirmReset = async () => {
       setIsResetting(true);
       // Clear localStorage immediately
       localStorage.clear();
+      // Clear IndexedDB app data
+      try { await clearAppData(); } catch {}
       // Clear Cache Storage (if any)
       try {
         if (window.caches) {
@@ -120,15 +143,24 @@ const App: React.FC = () => {
     void confirmReset();
   }, []);
   
-  // Effect to load data from localStorage on startup
+  // Effect to load data from IndexedDB (fallback to localStorage) on startup
   useEffect(() => {
-    const loadData = () => {
-      const rawData = localStorage.getItem('appData');
+    const loadData = async () => {
+      let rawData: string | null = null;
+      try {
+        rawData = await loadAppData();
+      } catch {}
+      if (!rawData) {
+        try { rawData = localStorage.getItem('appData'); } catch {}
+      }
       let appData: Partial<BackupData> = {};
 
       if (rawData) {
         try {
-          appData = JSON.parse(rawData);
+          // Attempt decryption first if encryption is enabled
+          const maybeDecrypted = await decrypt(rawData);
+          const jsonText = maybeDecrypted ?? rawData;
+          appData = JSON.parse(jsonText);
         } catch (e) {
           console.error("Failed to load or parse data. Data might be corrupt.", e);
           alert("Error: Could not load your data. It might be corrupted. Resetting to a clean state.");
@@ -171,7 +203,7 @@ const App: React.FC = () => {
       setIsDataLoaded(true);
     };
 
-    loadData();
+    void loadData();
   }, [handleResetData]);
   
   // Effect to handle onboarding flow based on currency selection
@@ -181,7 +213,7 @@ const App: React.FC = () => {
     }
   }, [currency, onboardingStep]);
 
-  // Effect to save data to localStorage whenever it changes
+  // Effect to save data to IndexedDB and localStorage whenever it changes
   useEffect(() => {
     const saveData = async () => {
         if (!isDataLoaded || isSaving) return;
@@ -195,7 +227,11 @@ const App: React.FC = () => {
         const jsonString = JSON.stringify(appData);
         
         try {
-            localStorage.setItem('appData', jsonString);
+            // Optionally encrypt saved data when encryption is enabled and a session secret is set
+            const secured = await encrypt(jsonString);
+            // Save to IndexedDB (primary) and keep localStorage as secondary backup
+            await saveAppData(secured);
+            localStorage.setItem('appData', secured);
             // Mark that data has been persisted at least once
             localStorage.setItem('hasLaunchedBefore', 'true');
         } catch (e) {
@@ -205,7 +241,7 @@ const App: React.FC = () => {
         }
     };
     
-    saveData();
+    void saveData();
   }, [
     transactions, accounts, goals, categories, budgets, recurringTransactions, 
     shoppingLists, debts, products, emergencyFund, subscriptions, bills, incomeSources,
@@ -234,7 +270,7 @@ const App: React.FC = () => {
     });
   }, [accounts, debts]);
 
-  // --- Notifications for Bills and Subscriptions ---
+  // --- Notifications for Bills and Subscriptions (suppressed by default; no auto permission prompts) ---
   useEffect(() => {
     const todayISO = new Date().toISOString().split('T')[0];
     const notifiedBillsKey = 'notifiedBills';
@@ -245,14 +281,9 @@ const App: React.FC = () => {
       notifiedBills = JSON.parse(localStorage.getItem(notifiedBillsKey) || '{}');
       notifiedSubs = JSON.parse(localStorage.getItem(notifiedSubsKey) || '{}');
     } catch {}
-
-    const requestPermission = () => {
-      if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission().catch(() => {});
-      }
-    };
-    requestPermission();
-
+    // Only notify if user explicitly enabled reminders and permission is already granted
+    const remindersEnabled = localStorage.getItem('enableReminders') === 'true';
+    if (!remindersEnabled) return;
     const canNotify = 'Notification' in window && Notification.permission === 'granted';
     if (!canNotify) return;
 
