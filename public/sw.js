@@ -1,4 +1,4 @@
-const CACHE_NAME = 'walletplus-cache-v6';
+const CACHE_NAME = 'walletplus-cache-v7';
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -41,12 +41,15 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.map((key) => (key !== CACHE_NAME ? caches.delete(key) : Promise.resolve())))
-    )
-  );
-  self.clients.claim();
+  event.waitUntil((async () => {
+    // Enable navigation preload for faster responses when online
+    if (self.registration.navigationPreload) {
+      try { await self.registration.navigationPreload.enable(); } catch (_) {}
+    }
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => (key !== CACHE_NAME ? caches.delete(key) : Promise.resolve())));
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener('fetch', (event) => {
@@ -58,26 +61,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle navigation requests (SPA fallback)
+  // Handle navigation requests (SPA offline-first App Shell)
   if (request.mode === 'navigate') {
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);
+        // Serve the cached app shell immediately if present
+        const cachedIndex = await cache.match('/index.html');
+        if (cachedIndex) {
+          // In the background, try to update the cache with the latest index
+          fetch('/index.html').then((res) => {
+            if (res && res.ok) {
+              cache.put('/index.html', res.clone());
+            }
+          }).catch(() => {});
+          return cachedIndex;
+        }
+
+        // If not cached yet, attempt network; fallback to offline page
         try {
-          // Try network first for navigation
           const networkResponse = await fetch(request);
-          // Cache successful navigation responses
-          cache.put(request, networkResponse.clone());
+          if (networkResponse && networkResponse.ok) {
+            cache.put('/index.html', networkResponse.clone());
+          }
           return networkResponse;
         } catch {
-          // Fallback to cached index.html for offline SPA routing
-          const cachedIndex = await cache.match('/index.html');
-          if (cachedIndex) return cachedIndex;
           const offlinePage = await cache.match('/offline.html');
-          return offlinePage || new Response('Offline - Please check your connection', {
-            status: 503,
-            statusText: 'Service Unavailable'
-          });
+          return offlinePage || new Response('Offline - Please check your connection', { status: 503 });
         }
       })()
     );
