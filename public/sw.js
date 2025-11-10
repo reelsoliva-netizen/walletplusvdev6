@@ -1,23 +1,43 @@
-const CACHE_NAME = 'walletplus-cache-v5';
-const URLS_TO_CACHE = [
+const CACHE_NAME = 'walletplus-cache-v6';
+const CORE_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/icons/icon-512.png',
   '/icon.svg',
   '/index.css',
-  '/privacy-policy.html'
+  '/privacy-policy.html',
+  '/offline.html'
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(URLS_TO_CACHE).catch(err => {
-        console.warn('Some resources failed to cache:', err);
-      });
-    })
-  );
-  self.skipWaiting();
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    try {
+      await cache.addAll(CORE_ASSETS);
+    } catch (err) {
+      console.warn('Some core resources failed to cache:', err);
+    }
+
+    // Pre-cache hashed build assets by parsing index.html
+    try {
+      const res = await fetch('/index.html', { cache: 'no-cache' });
+      const html = await res.text();
+      const assetMatches = Array.from(html.matchAll(/(?:src|href)=\"(\/assets\/[^\"]+)\"/g));
+      const assetUrls = assetMatches.map(m => m[1]).filter(Boolean);
+      await Promise.all(assetUrls.map(async (u) => {
+        try {
+          await cache.add(u);
+        } catch (e) {
+          // Ignore failures for optional assets
+        }
+      }));
+    } catch (e) {
+      console.warn('Asset pre-cache skipped:', e);
+    }
+
+    self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (event) => {
@@ -51,8 +71,10 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         } catch {
           // Fallback to cached index.html for offline SPA routing
-          const cached = await cache.match('/index.html');
-          return cached || new Response('Offline - Please check your connection', {
+          const cachedIndex = await cache.match('/index.html');
+          if (cachedIndex) return cachedIndex;
+          const offlinePage = await cache.match('/offline.html');
+          return offlinePage || new Response('Offline - Please check your connection', {
             status: 503,
             statusText: 'Service Unavailable'
           });

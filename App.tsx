@@ -123,11 +123,10 @@ const App: React.FC = () => {
   // Effect to load data from localStorage on startup
   useEffect(() => {
     const loadData = () => {
-      const hasLaunchedBefore = localStorage.getItem('hasLaunchedBefore');
       const rawData = localStorage.getItem('appData');
       let appData: Partial<BackupData> = {};
 
-      if (hasLaunchedBefore && rawData) {
+      if (rawData) {
         try {
           appData = JSON.parse(rawData);
         } catch (e) {
@@ -197,6 +196,8 @@ const App: React.FC = () => {
         
         try {
             localStorage.setItem('appData', jsonString);
+            // Mark that data has been persisted at least once
+            localStorage.setItem('hasLaunchedBefore', 'true');
         } catch (e) {
             console.error("Failed to save data:", e);
         } finally {

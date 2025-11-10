@@ -1,5 +1,7 @@
 # Wallet+ App Store Submission Guide
 
+> New: Store assets generator added. See `store_assets/README.md` and run `npm run generate:store` to produce Play Store icons and feature graphic from `store_icon.png`. Place screenshots under `store_assets/play_store/screenshots/` for easy download.
+
 ## 📱 Publishing to Google Play Store (Android)
 
 ### Method: Trusted Web Activity (TWA)
@@ -103,6 +105,7 @@ Perfect for anyone who wants to take control of their finances with complete pri
 - [ ] Complete store listing
 - [ ] Add screenshots (2-8 images)
 - [ ] Add feature graphic
+- [ ] Generate icons via `npm run generate:store` (see `store_assets`)
 - [ ] Set content rating (use questionnaire)
 - [ ] Set pricing (Free)
 - [ ] Select countries for distribution
@@ -112,6 +115,10 @@ Perfect for anyone who wants to take control of their finances with complete pri
   - Data stored locally on device
   - No user accounts
   - Offline functionality
+
+### Offline Support Notes
+- Service Worker now pre-caches hashed build assets and serves an `offline.html` fallback.
+- After deployment, open the app once online to warm the cache; subsequent loads work offline.
 
 ---
 
